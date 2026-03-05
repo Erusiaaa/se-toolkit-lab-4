@@ -7,6 +7,7 @@ interface Item {
   id: number
   type: string
   title: string
+  description: string
   created_at: string
 }
 
@@ -18,6 +19,7 @@ function App() {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [filterType, setFilterType] = useState('all')
 
   useEffect(() => {
     if (!token) return
@@ -42,6 +44,14 @@ function App() {
       })
   }, [token])
 
+  const uniqueTypes = items.length > 0
+    ? ['all', ...new Set(items.map(item => item.type))]
+    : ['all']
+
+  const filteredItems = filterType === 'all'
+    ? items
+    : items.filter(item => item.type === filterType)
+
   function handleConnect(e: FormEvent) {
     e.preventDefault()
     const trimmed = draft.trim()
@@ -56,6 +66,7 @@ function App() {
     setDraft('')
     setItems([])
     setError(null)
+    setFilterType('all')
   }
 
   if (!token) {
@@ -87,26 +98,48 @@ function App() {
       {error && <p>Error: {error}</p>}
 
       {!loading && !error && (
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Type</th>
-              <th>Title</th>
-              <th>Created at</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.type}</td>
-                <td>{item.title}</td>
-                <td>{item.created_at}</td>
+        <>
+          <div className="filter-section" style={{ margin: '1rem 0' }}>
+            <label htmlFor="type-filter" style={{ marginRight: '0.5rem' }}>
+              Filter by type:
+            </label>
+            <select
+              id="type-filter"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              style={{ padding: '0.25rem' }}
+            >
+              {uniqueTypes.map(type => (
+                <option key={type} value={type}>
+                  {type === 'all' ? 'All' : type}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Created at</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredItems.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.id}</td>
+                  <td>{item.type}</td>
+                  <td>{item.title}</td>
+                  <td>{item.description}</td>
+                  <td>{item.created_at}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
     </div>
   )

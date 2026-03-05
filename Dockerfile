@@ -5,7 +5,7 @@
 
 # First, build the application in the `/app` directory.
 # See `Dockerfile` for details.
-FROM astral/uv:python3.14-bookworm-slim AS builder
+FROM astral/uv:python3.12-bookworm-slim AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Omit development dependencies
@@ -15,7 +15,7 @@ ENV UV_NO_DEV=1
 # across both images. If using a managed Python version, it needs to be
 # copied from the build image into the final image; see `standalone.Dockerfile`
 # for an example.
-ENV UV_PYTHON_DOWNLOADS=0
+ENV UV_PYTHON_DOWNLOADS=auto
 
 WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
